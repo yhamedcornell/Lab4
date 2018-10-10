@@ -1,0 +1,86 @@
+---
+title: 'Lab Homework 4'
+author: "Huaian Yu"
+date: "Due noon OCT 10, 2018"
+output:
+  word_document: default
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 3.5
+  html_document:
+    fig_height: 4.5
+    fig_width: 4.5
+---
+#Loading Library
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+#Recreate Plot:
+
+```{r}
+#Creat dataset:
+x1<-seq(-3,3,by=0.001)
+y1<-dnorm(x1,mean=0,sd=1)
+x2<-seq(0.2,6.2,by=0.001)
+y2<-dnorm(x2,mean=3.2,sd=1)
+df_group1<-data.frame(x1,y1)
+df_group2<-data.frame(x2,y2)
+```
+
+```{r}
+#Plot density functions:
+p1 <- ggplot()+theme_bw() +
+  theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank())+
+  scale_x_continuous(breaks=c(0,3.2),labels=c(expression(theta(0)), expression(theta(a))))+
+  xlab("") +ylab("") 
+p1=p1+geom_line(mapping = aes(x=x1,y=y1),data=df_group1,colour="blue",size=1)+
+  geom_line(mapping = aes(x=x2,y=y2),data=df_group2,colour="red",size=1)+
+  geom_vline(xintercept=qnorm(0.95,0,1),size=1,linetype = 2)
+#Shadow the alpha and beta area:
+df_group1 %>%  
+  filter(x1>=qnorm(0.95,0,1)) ->df_alpha
+df_group2 %>%  
+  filter(x2<=qnorm(0.95,0,1)) ->df_beta
+p1 <- p1+geom_area(mapping=aes(x =df_alpha$x1 ,y=df_alpha$y1,fill="Type I error"),
+                   data=df_alpha,colour="black",alpha=0.5,show.legend=TRUE)+
+         geom_area(mapping=aes(x =df_beta$x2 ,y=df_beta$y2,fill="Type II error"),
+                   data=df_beta,colour="black",alpha=0.5,show.legend=TRUE)+
+    scale_fill_manual(values=c("blue", "red"))+
+  theme(
+  legend.title = element_blank(),
+  legend.text = element_text(size=15),
+  legend.position = c(0.01, .95),
+  legend.justification = c("left", "top"),
+  legend.box.just = "left"
+)
+p1=p1+geom_text() +
+  annotate("text", label = expression(beta), x = 1, y = 0.02, size = 5,colour = "black")+
+  annotate("text", label = expression(alpha), x = 2, y = 0.02, size = 5,colour = "white")
+p1
+```
+
+
+
+#Q4: Implement a function that will check if a given positive integer is a prime number.
+```{r}
+is.prime <- function(num) {
+   if (num == 2) {
+      TRUE
+   } else if (any(num %% 2:(num-1) == 0)) {
+      FALSE
+   } else { 
+      TRUE
+   }
+}
+
+```
+#TEST:
+```{r}
+test1 <- is.prime(0)
+test2 <- is.prime(1)
+test3 <- is.prime(2)
+test4 <- is.prime(9)
+test4 <- is.prime(11)
+```
